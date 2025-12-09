@@ -20,7 +20,9 @@
 # SOFTWARE.
 #
 
-FROM ghcr.io/graalvm/jdk-community:25-ol9 AS builder
+FROM container-registry.oracle.com/graalvm/jdk:25 AS builder
+
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 # Install deps for jemalloc building
 RUN microdnf install -y epel-release && \
@@ -39,7 +41,7 @@ RUN git clone https://github.com/facebook/jemalloc.git && \
     make && \
     make install
 
-FROM --platform=$TARGETOS/$TARGETARCH ghcr.io/graalvm/jdk-community:25-ol9
+FROM --platform=$TARGETOS/$TARGETARCH container-registry.oracle.com/graalvm/jdk:25
 
 LABEL author="Matthew Penner" maintainer="matthew@pterodactyl.io"
 

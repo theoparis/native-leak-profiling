@@ -20,11 +20,12 @@
 # SOFTWARE.
 #
 
-FROM ghcr.io/graalvm/jdk-community:25-ol9 AS builder
+FROM container-registry.oracle.com/graalvm/jdk:25 AS builder
+
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 # Install deps for mimalloc building
-RUN microdnf install -y epel-release && \
-    microdnf update && \
+RUN  microdnf update && \
     microdnf install -y gcc gcc-c++ make git autoconf tar cmake
 
 RUN mkdir -p /opt /tmp/jprof /tmp/nmt /tmp/pmap /diagnostic
@@ -38,15 +39,14 @@ RUN git clone https://github.com/microsoft/mimalloc && \
     cmake -DMI_BUILD_TESTS=OFF ../ && \
     make install
 
-FROM --platform=$TARGETOS/$TARGETARCH ghcr.io/graalvm/jdk-community:25-ol9
+FROM --platform=$TARGETOS/$TARGETARCH container-registry.oracle.com/graalvm/jdk:25
 
 LABEL author="Matthew Penner" maintainer="matthew@pterodactyl.io"
 
 LABEL org.opencontainers.image.source="https://github.com/pterodactyl/yolks"
 LABEL org.opencontainers.image.licenses=MIT
 
-RUN microdnf install -y epel-release && \
-    microdnf update && \
+RUN microdnf update && \
     microdnf install -y curl ca-certificates openssl git tar sqlite fontconfig tzdata iproute gcc gcc-c++ freetype libstdc++ lsof glibc glibc-locale-source glibc-langpack-en && \
     microdnf clean all && \
     adduser --home-dir /home/container container
